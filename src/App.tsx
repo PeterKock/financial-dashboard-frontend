@@ -46,8 +46,7 @@ function App() {
             };
 
             ws.current.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                ws.current?.close();
+                console.warn('WebSocket encountered an error:', error);
             };
         };
 
