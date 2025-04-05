@@ -1,25 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Global base styling */
-html {
-    font-family: 'Inter', sans-serif;
-    scroll-behavior: smooth;
-}
+@layer base {
+    html {
+        font-family: 'Inter', sans-serif;
+        scroll-behavior: smooth;
+    }
 
-body {
-    @apply bg-gray-950 text-gray-100 antialiased leading-relaxed;
-}
+    body {
+        @apply bg-gray-950 text-gray-100 antialiased leading-relaxed min-h-screen;
+    }
 
-a {
-    @apply text-blue-400 hover:text-blue-300 underline underline-offset-2 transition;
-}
+    a {
+        @apply text-blue-400 hover:text-blue-300 underline underline-offset-2 transition;
+    }
 
-img {
-    @apply max-w-full rounded-xl;
-}
-
-section {
-    @apply mb-16;
+    img {
+        @apply max-w-full rounded-xl;
+    }
 }
