@@ -3,6 +3,7 @@ import './styles/App.css';
 import Layout from './layout/Layout';
 import StatusBanner from './components/StatusBanner';
 import StockCard from './components/StockCard';
+import Chart from './components/Chart';
 
 interface StockData {
     symbol: string;
@@ -12,9 +13,15 @@ interface StockData {
 
 type Stocks = StockData[];
 
+interface ChartDataPoint {
+    time: string;
+    price: number;
+}
+
 function App() {
     const [stocks, setStocks] = useState<Stocks>([]);
     const [status, setStatus] = useState('🟡 Waiting for live data...');
+    const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
     const ws = useRef<WebSocket | null>(null);
     const reconnectInterval = useRef<number | null>(null);
 
@@ -34,6 +41,18 @@ function App() {
                 try {
                     const incoming: Stocks = JSON.parse(event.data);
                     setStocks(incoming);
+
+                    // Extract and append AAPL data to chart
+                    const aapl = incoming.find((s) => s.symbol === 'AAPL');
+                    if (aapl) {
+                        setChartData((prev) => [
+                            ...prev.slice(-49),
+                            {
+                                time: new Date(aapl.time).toLocaleTimeString(),
+                                price: aapl.price,
+                            },
+                        ]);
+                    }
                 } catch (err) {
                     console.error('Error parsing message:', err);
                 }
@@ -67,10 +86,10 @@ function App() {
             <StatusBanner status={status} />
             <section className="chart-section">
                 <h2 className="chart-title">Live Stock Chart</h2>
-                <div className="chart-placeholder">Chart goes here</div>
+                <Chart data={chartData} symbol="AAPL" />
             </section>
 
-            {/* Status + Live Data */}
+            {/* Live Data Section */}
             <h2 className="app-title">Live Financial Data</h2>
 
             {stocks.length ? (

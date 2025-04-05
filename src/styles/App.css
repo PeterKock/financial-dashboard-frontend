@@ -84,3 +84,11 @@
 .footer-text {
   @apply text-xs text-gray-500;
 }
+
+.chart-wrapper {
+  @apply bg-gray-800 p-4 rounded-xl shadow mb-10;
+}
+
+.chart-heading {
+  @apply text-xl font-semibold mb-2 text-green-400;
+}
