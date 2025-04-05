@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import './styles/App.css';
+import Layout from './layout/Layout';
+import StatusBanner from './components/StatusBanner';
+import StockCard from './components/StockCard';
 
 interface StockData {
     symbol: string;
@@ -59,47 +62,32 @@ function App() {
     }, []);
 
     return (
-        <div className="app-root">
-            {/* Top Navigation */}
-            <header className="top-nav">
-                <div className="nav-container">
-                    <h1 className="nav-title">📈 Financial Dashboard</h1>
+        <Layout>
+            {/* Chart Section */}
+            <StatusBanner status={status} />
+            <section className="chart-section">
+                <h2 className="chart-title">Live Stock Chart</h2>
+                <div className="chart-placeholder">Chart goes here</div>
+            </section>
+
+            {/* Status + Live Data */}
+            <h2 className="app-title">Live Financial Data</h2>
+
+            {stocks.length ? (
+                <div className="stock-grid">
+                    {stocks.map((stock) => (
+                        <StockCard
+                            key={stock.symbol}
+                            symbol={stock.symbol}
+                            price={stock.price}
+                            time={stock.time}
+                        />
+                    ))}
                 </div>
-            </header>
-
-            {/* Page Content */}
-            <main className="app-container">
-
-                {/* Chart Section */}
-                <section className="chart-section">
-                    <h2 className="chart-title">📊 Live Stock Chart</h2>
-                    <div className="chart-placeholder">Chart goes here</div>
-                </section>
-
-                {/* Status + Live Data */}
-                <h2 className="app-title">📡 Live Financial Data</h2>
-                <p className="app-status">{status}</p>
-
-                {stocks.length ? (
-                    <div className="stock-grid">
-                        {stocks.map((stock) => (
-                            <div key={stock.symbol} className="stock-card">
-                                <h2 className="stock-symbol">{stock.symbol}</h2>
-                                <p className="stock-price">${stock.price.toFixed(2)}</p>
-                                <p className="stock-time">
-                                    Last updated:{' '}
-                                    {stock.time
-                                        ? new Date(stock.time).toLocaleTimeString()
-                                        : 'N/A'}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="app-loading">Waiting for live data...</p>
-                )}
-            </main>
-        </div>
+            ) : (
+                <p className="app-loading">Waiting for live data...</p>
+            )}
+        </Layout>
     );
 }
 
