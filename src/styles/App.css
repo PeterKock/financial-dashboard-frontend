@@ -1,68 +1,74 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+@import "tailwindcss";
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+/* App.css: component-specific styles only */
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-root {
+  @apply min-h-screen;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* --- Real-time financial dashboard styles --- */
 
 .app-container {
-  @apply h-screen bg-black text-white flex flex-col items-center justify-center text-center;
+  @apply px-6 py-10 max-w-7xl mx-auto;
 }
 
 .app-title {
-  @apply text-4xl font-bold mb-4;
+  @apply text-3xl font-bold mb-2;
 }
 
-.app-symbol {
-  @apply text-2xl text-green-400;
-}
-
-.app-price {
-  @apply text-2xl text-yellow-400;
-}
-
-.app-time {
-  @apply text-sm mt-2 text-gray-400;
+.app-status {
+  @apply text-sm text-gray-400 mb-6;
 }
 
 .app-loading {
-  @apply text-xl text-gray-500;
+  @apply text-gray-400 text-lg italic;
+}
+
+/* Layout & Nav */
+.top-nav {
+  @apply w-full sticky top-0 z-50 bg-gray-900 shadow border-b border-gray-800;
+}
+
+.nav-container {
+  @apply max-w-7xl mx-auto px-6 py-4 flex justify-center items-center;
+}
+
+.nav-title {
+  @apply text-xl sm:text-2xl font-bold tracking-tight;
+}
+
+/* Chart Section */
+.chart-section {
+  @apply mb-8;
+}
+
+.chart-title {
+  @apply text-2xl font-semibold mb-4;
+}
+
+.chart-placeholder {
+  @apply h-64 bg-gray-800 rounded-xl shadow flex items-center justify-center text-gray-400;
+}
+
+/* Grid for cards */
+.stock-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4;
+}
+
+.stock-card {
+  @apply p-4 shadow rounded-xl bg-gray-800 transition-transform hover:scale-[1.02];
+}
+
+.stock-symbol {
+  @apply font-bold text-xl text-green-400;
+}
+
+.stock-price {
+  @apply text-2xl font-semibold text-yellow-400;
+}
+
+.stock-time {
+  @apply text-sm text-gray-400 mt-1;
+}
+
+.card-base {
+  @apply bg-gray-800 rounded-2xl shadow-lg p-6 transition-transform hover:scale-[1.01];
 }

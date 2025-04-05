@@ -20,7 +20,6 @@ function App() {
             ws.current = new WebSocket(import.meta.env.VITE_WS_URL || 'ws://localhost:4000');
 
             ws.current.onopen = () => {
-                console.log('WebSocket connected');
                 setStatus('🟢 Connected');
                 if (reconnectInterval.current) {
                     clearInterval(reconnectInterval.current);
@@ -38,7 +37,6 @@ function App() {
             };
 
             ws.current.onclose = () => {
-                console.log('WebSocket disconnected, reconnecting in 5 seconds...');
                 setStatus('🔴 Disconnected. Attempting to reconnect...');
                 if (!reconnectInterval.current) {
                     reconnectInterval.current = setInterval(connectWebSocket, 5000);
@@ -61,28 +59,46 @@ function App() {
     }, []);
 
     return (
-        <div className="app-container">
-            <h1 className="app-title">📡 Live Financial Data</h1>
-            <p className="status mb-4">{status}</p>
-
-            {stocks.length ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {stocks.map((stock) => (
-                        <div key={stock.symbol} className="p-4 shadow rounded-lg bg-gray-800">
-                            <h2 className="font-bold text-xl text-green-400">{stock.symbol}</h2>
-                            <p className="text-2xl font-semibold text-yellow-400">
-                                ${stock.price.toFixed(2)}
-                            </p>
-                            <p className="text-sm text-gray-400">
-                                Last updated:{' '}
-                                {stock.time ? new Date(stock.time).toLocaleTimeString() : 'N/A'}
-                            </p>
-                        </div>
-                    ))}
+        <div className="app-root">
+            {/* Top Navigation */}
+            <header className="top-nav">
+                <div className="nav-container">
+                    <h1 className="nav-title">📈 Financial Dashboard</h1>
                 </div>
-            ) : (
-                <p className="app-loading">Waiting for live data...</p>
-            )}
+            </header>
+
+            {/* Page Content */}
+            <main className="app-container">
+
+                {/* Chart Section */}
+                <section className="chart-section">
+                    <h2 className="chart-title">📊 Live Stock Chart</h2>
+                    <div className="chart-placeholder">Chart goes here</div>
+                </section>
+
+                {/* Status + Live Data */}
+                <h2 className="app-title">📡 Live Financial Data</h2>
+                <p className="app-status">{status}</p>
+
+                {stocks.length ? (
+                    <div className="stock-grid">
+                        {stocks.map((stock) => (
+                            <div key={stock.symbol} className="stock-card">
+                                <h2 className="stock-symbol">{stock.symbol}</h2>
+                                <p className="stock-price">${stock.price.toFixed(2)}</p>
+                                <p className="stock-time">
+                                    Last updated:{' '}
+                                    {stock.time
+                                        ? new Date(stock.time).toLocaleTimeString()
+                                        : 'N/A'}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="app-loading">Waiting for live data...</p>
+                )}
+            </main>
         </div>
     );
 }
