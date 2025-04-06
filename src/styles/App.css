@@ -92,3 +92,9 @@
 .chart-heading {
   @apply text-xl font-semibold mb-2 text-green-400;
 }
+
+.stock-card-active {
+  @apply ring-2 ring-green-400 ring-offset-2 ring-offset-gray-900;
+}
+
+

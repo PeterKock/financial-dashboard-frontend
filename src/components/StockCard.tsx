@@ -9,9 +9,7 @@ interface Props {
 export default function StockCard({ symbol, price, time, isActive, onClick }: Props) {
     return (
         <div
-            className={`stock-card cursor-pointer transition-all ${
-                isActive ? 'ring-2 ring-green-400 ring-offset-2' : ''
-            }`}
+            className={`stock-card ${isActive ? 'stock-card-active' : ''}`}
             onClick={() => onClick(symbol)}
         >
             <h2 className="stock-symbol">{symbol}</h2>
