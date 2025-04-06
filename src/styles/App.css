@@ -54,7 +54,7 @@
 }
 
 .chart-heading {
-  @apply text-xl font-semibold mb-2 text-green-400;
+  @apply text-xl font-semibold mb-4 text-white text-center;
 }
 
 .chart-placeholder {

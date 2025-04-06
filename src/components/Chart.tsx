@@ -50,7 +50,7 @@ export default function Chart({ data, symbols }: Props) {
     return (
         <div className="chart-wrapper">
             <h3 className="chart-heading">
-                {symbols.join(', ')} Price History
+                Price History
             </h3>
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={normalizedData}>
