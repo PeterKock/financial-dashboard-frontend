@@ -50,7 +50,7 @@
 }
 
 .chart-wrapper {
-  @apply bg-gray-800 p-4 rounded-xl shadow mb-10;
+  @apply bg-gray-800 p-4 rounded-xl shadow mb-10 min-h-[16rem];
 }
 
 .chart-heading {
@@ -58,7 +58,7 @@
 }
 
 .chart-placeholder {
-  @apply h-64 bg-gray-800 rounded-xl shadow flex items-center justify-center text-gray-400;
+  @apply h-64 bg-gray-800 rounded-xl shadow flex items-center justify-center text-gray-400 pb-6;
 }
 
 /* ----------------------------------------------
@@ -101,7 +101,7 @@
 ---------------------------------------------- */
 
 .symbol-selector {
-  @apply mb-4 flex flex-col items-start gap-1 text-xs;
+  @apply mt-4 mb-4 flex flex-col items-start gap-1 text-xs;
 }
 
 .dropdown-box {
