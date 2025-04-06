@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-/* App.css: component-specific styles only */
-
+/* ----------------------------------------------
+   Global App Layout
+---------------------------------------------- */
 .app-root {
   @apply flex flex-col min-h-screen;
 }
@@ -11,7 +12,7 @@
 }
 
 .app-title {
-  @apply text-3xl font-bold mb-4 flex items-center justify-center;
+  @apply text-3xl font-bold mb-6 flex items-center justify-center;
 }
 
 .app-status {
@@ -22,7 +23,9 @@
   @apply text-gray-400 text-lg italic;
 }
 
-/* Layout & Nav */
+/* ----------------------------------------------
+   Layout & Navigation
+---------------------------------------------- */
 .top-nav {
   @apply w-full sticky top-0 z-50 bg-gray-900 shadow border-b border-gray-800;
 }
@@ -35,20 +38,32 @@
   @apply text-xl sm:text-2xl font-bold tracking-tight;
 }
 
-/* Chart Section */
+/* ----------------------------------------------
+   Chart Section
+---------------------------------------------- */
 .chart-section {
   @apply mb-8;
 }
 
 .chart-title {
-  @apply text-3xl font-semibold mb-4 flex items-center justify-center ;
+  @apply text-3xl font-semibold mb-4 flex items-center justify-center;
+}
+
+.chart-wrapper {
+  @apply bg-gray-800 p-4 rounded-xl shadow mb-10;
+}
+
+.chart-heading {
+  @apply text-xl font-semibold mb-2 text-green-400;
 }
 
 .chart-placeholder {
   @apply h-64 bg-gray-800 rounded-xl shadow flex items-center justify-center text-gray-400;
 }
 
-/* Grid for cards */
+/* ----------------------------------------------
+   Stock Cards
+---------------------------------------------- */
 .stock-grid {
   @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4;
 }
@@ -69,39 +84,45 @@
   @apply text-sm text-gray-400 mt-1;
 }
 
-.card-base {
-  @apply bg-gray-800 rounded-2xl shadow-lg p-6 transition-transform hover:scale-[1.01];
-}
-
-.footer {
-  @apply border-t border-gray-800 mt-12 py-6 bg-gray-900;
-}
-
-.footer-container {
-  @apply max-w-7xl mx-auto px-4 text-center ;
-}
-
-.footer-text {
-  @apply text-xs text-gray-500;
-}
-
-.chart-wrapper {
-  @apply bg-gray-800 p-4 rounded-xl shadow mb-10;
-}
-
-.chart-heading {
-  @apply text-xl font-semibold mb-2 text-green-400;
-}
-
 .stock-card-active {
   @apply ring-2 ring-green-400 ring-offset-2 ring-offset-gray-900;
 }
 
 .flash-green {
-  @apply animate-pulse bg-green-900 bg-opacity-20;
+  @apply animate-pulse bg-green-900/20;
 }
 
 .flash-red {
-  @apply animate-pulse bg-red-900 bg-opacity-20;
+  @apply animate-pulse bg-red-900/20;
 }
 
+/* ----------------------------------------------
+   Dropdown
+---------------------------------------------- */
+
+.symbol-selector {
+  @apply mb-6 flex flex-col items-start gap-2;
+}
+
+.dropdown-label {
+  @apply text-sm text-gray-300 font-medium;
+}
+
+.dropdown {
+  @apply bg-gray-800 text-gray-100 px-4 py-2 rounded-md border border-gray-700 text-sm w-40 sm:w-24 focus:outline-none focus:ring-2 focus:ring-green-400 transition;
+}
+
+/* ----------------------------------------------
+   Footer
+---------------------------------------------- */
+.footer {
+  @apply border-t border-gray-800 mt-12 py-6 bg-gray-900;
+}
+
+.footer-container {
+  @apply max-w-7xl mx-auto px-4 text-center;
+}
+
+.footer-text {
+  @apply text-xs text-gray-500;
+}

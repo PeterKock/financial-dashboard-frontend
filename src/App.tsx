@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './styles/App.css';
 import Layout from './layout/Layout';
 import StatusBanner from './components/StatusBanner';
+import Dropdown from './components/Dropdown';
 import StockCard from './components/StockCard';
 import Chart from './components/Chart';
 
@@ -87,26 +88,14 @@ function App() {
                 <h2 className="chart-title">Live Stock Chart</h2>
                 <StatusBanner status={status} />
 
-                <div className="mb-4 text-sm">
-                    <label htmlFor="symbol-select" className="mr-2 text-gray-400">
-                        Select Symbol:
-                    </label>
-                    <select
-                        id="symbol-select"
-                        value={selectedSymbol}
-                        onChange={(e) => {
-                            setSelectedSymbol(e.target.value);
-                            setChartData([]); // reset chart when switching symbol
-                        }}
-                        className="bg-gray-800 text-gray-100 p-1 rounded border border-gray-700"
-                    >
-                        {stocks.map((stock) => (
-                            <option key={stock.symbol} value={stock.symbol}>
-                                {stock.symbol}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <Dropdown
+                    options={stocks.map((s) => s.symbol)}
+                    selected={selectedSymbol}
+                    onSelect={(symbol) => {
+                        setSelectedSymbol(symbol);
+                        setChartData([]);
+                    }}
+                />
 
                 <Chart data={chartData} symbol={selectedSymbol} />
             </section>
