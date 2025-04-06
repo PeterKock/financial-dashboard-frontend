@@ -81,6 +81,12 @@ function App() {
         };
     }, [selectedSymbol]);
 
+        useEffect(() => {
+            if (!selectedSymbol && stocks.length > 0) {
+                setSelectedSymbol(stocks[0].symbol);
+            }
+         }, [stocks, selectedSymbol]);
+
     return (
         <Layout>
             {/* Chart Section */}
