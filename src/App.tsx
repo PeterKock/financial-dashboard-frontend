@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import './styles/App.css';
 import Layout from './layout/Layout';
 import StatusBanner from './components/StatusBanner';
+import Dropdown from './components/Dropdown';
 import StockCard from './components/StockCard';
+import Chart from './components/Chart';
 
 interface StockData {
     symbol: string;
@@ -12,9 +14,16 @@ interface StockData {
 
 type Stocks = StockData[];
 
+interface ChartDataPoint {
+    time: string;
+    price: number;
+}
+
 function App() {
     const [stocks, setStocks] = useState<Stocks>([]);
     const [status, setStatus] = useState('🟡 Waiting for live data...');
+    const [selectedSymbols, setSelectedSymbols] = useState<string[]>(['AAPL']);
+    const [chartData, setChartData] = useState<Record<string, ChartDataPoint[]>>({});
     const ws = useRef<WebSocket | null>(null);
     const reconnectInterval = useRef<number | null>(null);
 
@@ -34,6 +43,21 @@ function App() {
                 try {
                     const incoming: Stocks = JSON.parse(event.data);
                     setStocks(incoming);
+
+                    setChartData((prev) => {
+                        const updatedData = { ...prev };
+                        incoming.forEach((stock) => {
+                            if (selectedSymbols.includes(stock.symbol)) {
+                                const newEntry = {
+                                    time: new Date(stock.time).toLocaleTimeString(),
+                                    price: stock.price,
+                                };
+                                const existing = updatedData[stock.symbol] || [];
+                                updatedData[stock.symbol] = [...existing.slice(-49), newEntry];
+                            }
+                        });
+                        return updatedData;
+                    });
                 } catch (err) {
                     console.error('Error parsing message:', err);
                 }
@@ -59,18 +83,32 @@ function App() {
                 clearInterval(reconnectInterval.current);
             }
         };
-    }, []);
+    }, [selectedSymbols]);
+
+    useEffect(() => {
+        if (selectedSymbols.length === 0 && stocks.length > 0) {
+            setSelectedSymbols([stocks[0].symbol]);
+        }
+    }, [stocks, selectedSymbols]);
 
     return (
         <Layout>
             {/* Chart Section */}
-            <StatusBanner status={status} />
             <section className="chart-section">
                 <h2 className="chart-title">Live Stock Chart</h2>
-                <div className="chart-placeholder">Chart goes here</div>
+                <StatusBanner status={status} />
+                <Chart data={chartData} symbols={selectedSymbols} />
+                <Dropdown
+                    options={stocks.map((s) => s.symbol)}
+                    selected={selectedSymbols}
+                    onSelect={(symbols) => {
+                        setSelectedSymbols(symbols);
+                        setChartData({});
+                    }}
+                />
             </section>
 
-            {/* Status + Live Data */}
+            {/* Live Data Section */}
             <h2 className="app-title">Live Financial Data</h2>
 
             {stocks.length ? (
@@ -81,6 +119,15 @@ function App() {
                             symbol={stock.symbol}
                             price={stock.price}
                             time={stock.time}
+                            isActive={selectedSymbols.includes(stock.symbol)}
+                            onClick={(symbol: string) => {
+                                const alreadySelected = selectedSymbols.includes(symbol);
+                                setSelectedSymbols((prev) =>
+                                    alreadySelected
+                                        ? prev.filter((s) => s !== symbol)
+                                        : [...prev, symbol]
+                                );
+                            }}
                         />
                     ))}
                 </div>
