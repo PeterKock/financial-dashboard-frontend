@@ -97,4 +97,11 @@
   @apply ring-2 ring-green-400 ring-offset-2 ring-offset-gray-900;
 }
 
+.flash-green {
+  @apply animate-pulse bg-green-900 bg-opacity-20;
+}
+
+.flash-red {
+  @apply animate-pulse bg-red-900 bg-opacity-20;
+}
 

@@ -84,7 +84,7 @@ function App() {
         <Layout>
             {/* Chart Section */}
             <section className="chart-section">
-                <h2 className="chart-title">📊 Live Stock Chart</h2>
+                <h2 className="chart-title">Live Stock Chart</h2>
 
                 <div className="mb-4 text-sm">
                     <label htmlFor="symbol-select" className="mr-2 text-gray-400">
@@ -111,7 +111,7 @@ function App() {
             </section>
 
             {/* Live Data Section */}
-            <h2 className="app-title">📡 Live Financial Data</h2>
+            <h2 className="app-title">Live Financial Data</h2>
             <StatusBanner status={status} />
 
             {stocks.length ? (
