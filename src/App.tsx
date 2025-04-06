@@ -21,6 +21,7 @@ interface ChartDataPoint {
 function App() {
     const [stocks, setStocks] = useState<Stocks>([]);
     const [status, setStatus] = useState('🟡 Waiting for live data...');
+    const [selectedSymbol, setSelectedSymbol] = useState('AAPL');
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
     const ws = useRef<WebSocket | null>(null);
     const reconnectInterval = useRef<number | null>(null);
@@ -42,14 +43,13 @@ function App() {
                     const incoming: Stocks = JSON.parse(event.data);
                     setStocks(incoming);
 
-                    // Extract and append AAPL data to chart
-                    const aapl = incoming.find((s) => s.symbol === 'AAPL');
-                    if (aapl) {
+                    const active = incoming.find((s) => s.symbol === selectedSymbol);
+                    if (active) {
                         setChartData((prev) => [
                             ...prev.slice(-49),
                             {
-                                time: new Date(aapl.time).toLocaleTimeString(),
-                                price: aapl.price,
+                                time: new Date(active.time).toLocaleTimeString(),
+                                price: active.price,
                             },
                         ]);
                     }
@@ -78,19 +78,41 @@ function App() {
                 clearInterval(reconnectInterval.current);
             }
         };
-    }, []);
+    }, [selectedSymbol]);
 
     return (
         <Layout>
             {/* Chart Section */}
-            <StatusBanner status={status} />
             <section className="chart-section">
-                <h2 className="chart-title">Live Stock Chart</h2>
-                <Chart data={chartData} symbol="AAPL" />
+                <h2 className="chart-title">📊 Live Stock Chart</h2>
+
+                <div className="mb-4 text-sm">
+                    <label htmlFor="symbol-select" className="mr-2 text-gray-400">
+                        Select Symbol:
+                    </label>
+                    <select
+                        id="symbol-select"
+                        value={selectedSymbol}
+                        onChange={(e) => {
+                            setSelectedSymbol(e.target.value);
+                            setChartData([]); // reset chart when switching symbol
+                        }}
+                        className="bg-gray-800 text-gray-100 p-1 rounded border border-gray-700"
+                    >
+                        {stocks.map((stock) => (
+                            <option key={stock.symbol} value={stock.symbol}>
+                                {stock.symbol}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <Chart data={chartData} symbol={selectedSymbol} />
             </section>
 
             {/* Live Data Section */}
-            <h2 className="app-title">Live Financial Data</h2>
+            <h2 className="app-title">📡 Live Financial Data</h2>
+            <StatusBanner status={status} />
 
             {stocks.length ? (
                 <div className="stock-grid">
@@ -100,6 +122,11 @@ function App() {
                             symbol={stock.symbol}
                             price={stock.price}
                             time={stock.time}
+                            isActive={stock.symbol === selectedSymbol}
+                            onClick={(symbol) => {
+                                setSelectedSymbol(symbol);
+                                setChartData([]);
+                            }}
                         />
                     ))}
                 </div>
