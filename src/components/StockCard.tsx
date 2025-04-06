@@ -1,51 +1,42 @@
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    Tooltip,
-    ResponsiveContainer,
-} from 'recharts';
-
-interface StockDataPoint {
-    time: string;
-    price: number;
-}
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
-    data: StockDataPoint[];
     symbol: string;
+    price: number;
+    time: string;
+    isActive: boolean;
+    onClick: (symbol: string) => void;
 }
 
-export default function Chart({ data, symbol }: Props) {
-    if (data.length === 0) {
-        return (
-            <div className="chart-placeholder">
-                <p>Waiting for chart data...</p>
-            </div>
-        );
-    }
+export default function StockCard({ symbol, price, time, isActive, onClick }: Props) {
+    const [flashClass, setFlashClass] = useState('');
+    const prevPrice = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (prevPrice.current !== null) {
+            if (price > prevPrice.current) {
+                setFlashClass('flash-green');
+            } else if (price < prevPrice.current) {
+                setFlashClass('flash-red');
+            }
+
+            const timeout = setTimeout(() => setFlashClass(''), 500);
+            return () => clearTimeout(timeout);
+        }
+
+        prevPrice.current = price;
+    }, [price]);
 
     return (
-        <div className="chart-wrapper">
-            <h3 className="chart-heading">📈 {symbol} Price History</h3>
-            <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={data}>
-                    <XAxis dataKey="time" tick={{ fill: '#ccc', fontSize: 12 }} />
-                    <YAxis domain={['auto', 'auto']} tick={{ fill: '#ccc', fontSize: 12 }} />
-                    <Tooltip
-                        contentStyle={{ backgroundColor: '#111', borderColor: '#333' }}
-                        labelStyle={{ color: '#ccc' }}
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="price"
-                        stroke="#10b981"
-                        strokeWidth={2}
-                        dot={false}
-                    />
-                </LineChart>
-            </ResponsiveContainer>
+        <div
+            className={`stock-card ${isActive ? 'stock-card-active' : ''} ${flashClass}`}
+            onClick={() => onClick(symbol)}
+        >
+            <h2 className="stock-symbol">{symbol}</h2>
+            <p className="stock-price">${price.toFixed(2)}</p>
+            <p className="stock-time">
+                Last updated: {time ? new Date(time).toLocaleTimeString() : 'N/A'}
+            </p>
         </div>
     );
 }

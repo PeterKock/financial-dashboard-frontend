@@ -85,6 +85,7 @@ function App() {
             {/* Chart Section */}
             <section className="chart-section">
                 <h2 className="chart-title">Live Stock Chart</h2>
+                <StatusBanner status={status} />
 
                 <div className="mb-4 text-sm">
                     <label htmlFor="symbol-select" className="mr-2 text-gray-400">
@@ -112,7 +113,6 @@ function App() {
 
             {/* Live Data Section */}
             <h2 className="app-title">Live Financial Data</h2>
-            <StatusBanner status={status} />
 
             {stocks.length ? (
                 <div className="stock-grid">
@@ -123,7 +123,7 @@ function App() {
                             price={stock.price}
                             time={stock.time}
                             isActive={stock.symbol === selectedSymbol}
-                            onClick={(symbol) => {
+                            onClick={(symbol: string) => {
                                 setSelectedSymbol(symbol);
                                 setChartData([]);
                             }}
