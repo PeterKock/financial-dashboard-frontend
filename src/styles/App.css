@@ -101,15 +101,23 @@
 ---------------------------------------------- */
 
 .symbol-selector {
-  @apply mb-6 flex flex-col items-start gap-2;
+  @apply mb-4 flex flex-col items-start gap-1 text-xs;
 }
 
-.dropdown-label {
-  @apply text-sm text-gray-300 font-medium;
+.dropdown-box {
+  @apply flex flex-col gap-1 bg-gray-800 p-2 rounded-md border border-gray-700 shadow w-24;
 }
 
-.dropdown {
-  @apply bg-gray-800 text-gray-100 px-4 py-2 rounded-md border border-gray-700 text-sm w-40 sm:w-24 focus:outline-none focus:ring-2 focus:ring-green-400 transition;
+.dropdown-option {
+  @apply flex items-center gap-2;
+}
+
+.dropdown-option-label {
+  @apply text-[10px] text-gray-100 cursor-pointer;
+}
+
+.dropdown-checkbox {
+  @apply accent-green-400 h-3 w-3;
 }
 
 /* ----------------------------------------------

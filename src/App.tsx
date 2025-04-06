@@ -22,8 +22,8 @@ interface ChartDataPoint {
 function App() {
     const [stocks, setStocks] = useState<Stocks>([]);
     const [status, setStatus] = useState('🟡 Waiting for live data...');
-    const [selectedSymbol, setSelectedSymbol] = useState('AAPL');
-    const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+    const [selectedSymbols, setSelectedSymbols] = useState<string[]>(['AAPL']);
+    const [chartData, setChartData] = useState<Record<string, ChartDataPoint[]>>({});
     const ws = useRef<WebSocket | null>(null);
     const reconnectInterval = useRef<number | null>(null);
 
@@ -44,16 +44,20 @@ function App() {
                     const incoming: Stocks = JSON.parse(event.data);
                     setStocks(incoming);
 
-                    const active = incoming.find((s) => s.symbol === selectedSymbol);
-                    if (active) {
-                        setChartData((prev) => [
-                            ...prev.slice(-49),
-                            {
-                                time: new Date(active.time).toLocaleTimeString(),
-                                price: active.price,
-                            },
-                        ]);
-                    }
+                    setChartData((prev) => {
+                        const updatedData = { ...prev };
+                        incoming.forEach((stock) => {
+                            if (selectedSymbols.includes(stock.symbol)) {
+                                const newEntry = {
+                                    time: new Date(stock.time).toLocaleTimeString(),
+                                    price: stock.price,
+                                };
+                                const existing = updatedData[stock.symbol] || [];
+                                updatedData[stock.symbol] = [...existing.slice(-49), newEntry];
+                            }
+                        });
+                        return updatedData;
+                    });
                 } catch (err) {
                     console.error('Error parsing message:', err);
                 }
@@ -79,13 +83,13 @@ function App() {
                 clearInterval(reconnectInterval.current);
             }
         };
-    }, [selectedSymbol]);
+    }, [selectedSymbols]);
 
-        useEffect(() => {
-            if (!selectedSymbol && stocks.length > 0) {
-                setSelectedSymbol(stocks[0].symbol);
-            }
-         }, [stocks, selectedSymbol]);
+    useEffect(() => {
+        if (selectedSymbols.length === 0 && stocks.length > 0) {
+            setSelectedSymbols([stocks[0].symbol]);
+        }
+    }, [stocks, selectedSymbols]);
 
     return (
         <Layout>
@@ -93,17 +97,15 @@ function App() {
             <section className="chart-section">
                 <h2 className="chart-title">Live Stock Chart</h2>
                 <StatusBanner status={status} />
-
+                <Chart data={chartData} symbols={selectedSymbols} />
                 <Dropdown
                     options={stocks.map((s) => s.symbol)}
-                    selected={selectedSymbol}
-                    onSelect={(symbol) => {
-                        setSelectedSymbol(symbol);
-                        setChartData([]);
+                    selected={selectedSymbols}
+                    onSelect={(symbols) => {
+                        setSelectedSymbols(symbols);
+                        setChartData({});
                     }}
                 />
-
-                <Chart data={chartData} symbol={selectedSymbol} />
             </section>
 
             {/* Live Data Section */}
@@ -117,10 +119,14 @@ function App() {
                             symbol={stock.symbol}
                             price={stock.price}
                             time={stock.time}
-                            isActive={stock.symbol === selectedSymbol}
+                            isActive={selectedSymbols.includes(stock.symbol)}
                             onClick={(symbol: string) => {
-                                setSelectedSymbol(symbol);
-                                setChartData([]);
+                                const alreadySelected = selectedSymbols.includes(symbol);
+                                setSelectedSymbols((prev) =>
+                                    alreadySelected
+                                        ? prev.filter((s) => s !== symbol)
+                                        : [...prev, symbol]
+                                );
                             }}
                         />
                     ))}
