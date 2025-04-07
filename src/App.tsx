@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import './styles/App.css';
 import Layout from './layout/Layout';
 import StatusBanner from './components/StatusBanner';
@@ -92,49 +93,56 @@ function App() {
     }, [stocks, selectedSymbols]);
 
     return (
-        <Layout>
-            {/* Chart Section */}
-            <section className="chart-section">
-                <h2 className="chart-title">Live Stock Chart</h2>
-                <StatusBanner status={status} />
-                <Chart data={chartData} symbols={selectedSymbols} />
-                <Dropdown
-                    options={stocks.map((s) => s.symbol)}
-                    selected={selectedSymbols}
-                    onSelect={(symbols) => {
-                        setSelectedSymbols(symbols);
-                        setChartData({});
-                    }}
-                />
-            </section>
+        <Routes>
+            <Route
+                path="/"
+                element={
+                    <Layout>
+                        {/* Chart Section */}
+                        <section className="chart-section">
+                            <h2 className="chart-title">Live Stock Chart</h2>
+                            <StatusBanner status={status} />
+                            <Chart data={chartData} symbols={selectedSymbols} />
+                            <Dropdown
+                                options={stocks.map((s) => s.symbol)}
+                                selected={selectedSymbols}
+                                onSelect={(symbols) => {
+                                    setSelectedSymbols(symbols);
+                                    setChartData({});
+                                }}
+                            />
+                        </section>
 
-            {/* Live Data Section */}
-            <h2 className="app-title">Live Financial Data</h2>
+                        {/* Live Data Section */}
+                        <h2 className="app-title">Live Financial Data</h2>
 
-            {stocks.length ? (
-                <div className="stock-grid">
-                    {stocks.map((stock) => (
-                        <StockCard
-                            key={stock.symbol}
-                            symbol={stock.symbol}
-                            price={stock.price}
-                            time={stock.time}
-                            isActive={selectedSymbols.includes(stock.symbol)}
-                            onClick={(symbol: string) => {
-                                const alreadySelected = selectedSymbols.includes(symbol);
-                                setSelectedSymbols((prev) =>
-                                    alreadySelected
-                                        ? prev.filter((s) => s !== symbol)
-                                        : [...prev, symbol]
-                                );
-                            }}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <p className="app-loading">Waiting for live data...</p>
-            )}
-        </Layout>
+                        {stocks.length ? (
+                            <div className="stock-grid">
+                                {stocks.map((stock) => (
+                                    <StockCard
+                                        key={stock.symbol}
+                                        symbol={stock.symbol}
+                                        price={stock.price}
+                                        time={stock.time}
+                                        isActive={selectedSymbols.includes(stock.symbol)}
+                                        onClick={(symbol: string) => {
+                                            const alreadySelected = selectedSymbols.includes(symbol);
+                                            setSelectedSymbols((prev) =>
+                                                alreadySelected
+                                                    ? prev.filter((s) => s !== symbol)
+                                                    : [...prev, symbol]
+                                            );
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="app-loading">Waiting for live data...</p>
+                        )}
+                    </Layout>
+                }
+            />
+        </Routes>
     );
 }
 
