@@ -30,7 +30,12 @@ function App() {
 
     useEffect(() => {
         const connectWebSocket = () => {
-            ws.current = new WebSocket(import.meta.env.VITE_WS_URL || 'ws://localhost:4000');
+            if (ws.current?.readyState === WebSocket.OPEN) {
+                return; // Already connected
+            }
+            
+            const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:4000'}/ws`;
+            ws.current = new WebSocket(wsUrl);
 
             ws.current.onopen = () => {
                 setStatus('🟢 Connected');
@@ -66,20 +71,32 @@ function App() {
 
             ws.current.onclose = () => {
                 setStatus('🔴 Disconnected. Attempting to reconnect...');
-                if (!reconnectInterval.current) {
-                    reconnectInterval.current = setInterval(connectWebSocket, 5000);
-                }
+                // Add a small delay before attempting to reconnect
+                setTimeout(() => {
+                    if (!reconnectInterval.current) {
+                        reconnectInterval.current = setInterval(connectWebSocket, 5000);
+                    }
+                }, 1000);
             };
 
             ws.current.onerror = (error) => {
                 console.warn('WebSocket encountered an error:', error);
+                // Don't set status here, let onclose handle it
             };
         };
 
         connectWebSocket();
 
         return () => {
-            ws.current?.close();
+            if (ws.current) {
+                const socket = ws.current;
+                // Remove all listeners before closing
+                socket.onclose = null;
+                socket.onerror = null;
+                socket.onmessage = null;
+                socket.onopen = null;
+                socket.close();
+            }
             if (reconnectInterval.current) {
                 clearInterval(reconnectInterval.current);
             }
