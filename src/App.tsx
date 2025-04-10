@@ -34,7 +34,8 @@ function App() {
                 return; // Already connected
             }
             
-            const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:4000'}/ws`;
+            // Use the WebSocket URL as-is from environment, with fallback for local development
+            const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:4000/ws';
             ws.current = new WebSocket(wsUrl);
 
             ws.current.onopen = () => {
