@@ -1,54 +1,102 @@
-# React + TypeScript + Vite
+# Financial Dashboard Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend part of the Financial Dashboard application built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Real-time stock data visualization
+- Responsive design using Tailwind CSS
+- Modular component structure
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Node.js (version 14 or higher)
+- npm (Node package manager)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd financial-dashboard-frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Add your environment variables in a `.env` file:
+   ```plaintext
+   VITE_WS_URL=ws://localhost:4000
+   ```
+
+### Running the Application
+
+To start the development server, run:
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Building for Production
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+To build the application for production, run:
+```bash
+npm run build
 ```
+
+### Testing
+
+To run tests, use:
+```bash
+npm run test
+```
+
+### Running with Docker
+
+1. Build the Docker image:
+   ```bash
+   docker build -t financial-dashboard-frontend .
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run -p 5173:5173 financial-dashboard-frontend
+   ```
+
+### Running with Docker Compose
+
+Docker Compose allows you to run both the frontend and backend services together with a single command. This is useful for development and testing purposes.
+
+#### Prerequisites
+
+- Docker
+- Docker Compose
+
+#### Steps
+
+1. Ensure your `docker-compose.yml` is correctly configured. It should be located in the root directory of your project.
+
+2. Open a terminal and navigate to the directory containing the `docker-compose.yml` file.
+
+3. Run the following command to build and start the services:
+   ```bash
+   docker-compose up --build
+   ```
+
+4. To stop the services, press `Ctrl+C` in the terminal or run:
+   ```bash
+   docker-compose down
+   ```
+
+This setup will automatically build the Docker images for both the frontend and backend, and start the services as defined in the `docker-compose.yml` file.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
