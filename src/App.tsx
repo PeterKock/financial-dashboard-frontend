@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './styles/App.css';
 import Layout from './layout/Layout';
@@ -27,82 +27,141 @@ function App() {
     const [chartData, setChartData] = useState<Record<string, ChartDataPoint[]>>({});
     const ws = useRef<WebSocket | null>(null);
     const reconnectInterval = useRef<number | null>(null);
+    const reconnectAttempts = useRef<number>(0);
+    const MAX_RECONNECT_ATTEMPTS = 5;
+    const INITIAL_RECONNECT_DELAY = 1000;
+    const MAX_RECONNECT_DELAY = 30000;
+    const latestData = useRef<Stocks>([]);
+    const isComponentMounted = useRef(true);
 
-    useEffect(() => {
-        const connectWebSocket = () => {
-            if (ws.current?.readyState === WebSocket.OPEN) {
-                return; // Already connected
+    // Cleanup function to properly close WebSocket
+    const cleanup = useCallback(() => {
+        if (ws.current) {
+            // Remove all listeners first
+            ws.current.onclose = null;
+            ws.current.onerror = null;
+            ws.current.onmessage = null;
+            ws.current.onopen = null;
+
+            // Only close if not already closing/closed
+            if (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING) {
+                ws.current.close();
             }
-            
-            // Use the WebSocket URL as-is from environment, with fallback for local development
+            ws.current = null;
+        }
+        if (reconnectInterval.current) {
+            clearInterval(reconnectInterval.current);
+            reconnectInterval.current = null;
+        }
+    }, []);
+
+    // Handle incoming message
+    const handleMessage = useCallback((event: MessageEvent) => {
+        if (!isComponentMounted.current) return;
+        
+        try {
+            const incoming: Stocks = JSON.parse(event.data);
+            latestData.current = incoming;
+            setStocks(incoming);
+        } catch (err) {
+            console.error('Error processing message:', err);
+            setStatus('🟡 Error processing data');
+        }
+    }, []);
+
+    // Connect WebSocket
+    const connect = useCallback(() => {
+        if (!isComponentMounted.current) return;
+        if (ws.current?.readyState === WebSocket.OPEN) return;
+
+        cleanup();
+
+        try {
             const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:4000/ws';
             ws.current = new WebSocket(wsUrl);
 
             ws.current.onopen = () => {
+                if (!isComponentMounted.current) return;
                 setStatus('🟢 Connected');
-                if (reconnectInterval.current) {
-                    clearInterval(reconnectInterval.current);
-                    reconnectInterval.current = null;
+                reconnectAttempts.current = 0;
+            };
+
+            ws.current.onmessage = handleMessage;
+
+            ws.current.onclose = (event) => {
+                if (!isComponentMounted.current) return;
+                
+                const wasClean = event.wasClean;
+                const reason = event.reason || 'Unknown reason';
+                console.log(`WebSocket closed ${wasClean ? 'cleanly' : 'unexpectedly'}:`, reason);
+
+                if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                    const delay = Math.min(
+                        INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current),
+                        MAX_RECONNECT_DELAY
+                    );
+                    setStatus(`🔴 Disconnected. Reconnecting in ${delay/1000}s...`);
+                    
+                    setTimeout(() => {
+                        if (isComponentMounted.current) {
+                            reconnectAttempts.current++;
+                            connect();
+                        }
+                    }, delay);
+                } else {
+                    setStatus('🔴 Connection failed. Please refresh the page.');
                 }
             };
 
-            ws.current.onmessage = (event) => {
-                try {
-                    const incoming: Stocks = JSON.parse(event.data);
-                    setStocks(incoming);
-
-                    setChartData((prev) => {
-                        const updatedData = { ...prev };
-                        incoming.forEach((stock) => {
-                            if (selectedSymbols.includes(stock.symbol)) {
-                                const newEntry = {
-                                    time: new Date(stock.time).toLocaleTimeString(),
-                                    price: stock.price,
-                                };
-                                const existing = updatedData[stock.symbol] || [];
-                                updatedData[stock.symbol] = [...existing.slice(-49), newEntry];
-                            }
-                        });
-                        return updatedData;
-                    });
-                } catch (err) {
-                    console.error('Error parsing message:', err);
-                }
+            ws.current.onerror = () => {
+                if (!isComponentMounted.current) return;
+                setStatus('🔴 Connection error');
             };
+        } catch (error) {
+            if (!isComponentMounted.current) return;
+            console.error('Error creating WebSocket:', error);
+            setStatus('🔴 Failed to create connection');
+        }
+    }, [cleanup, handleMessage]);
 
-            ws.current.onclose = () => {
-                setStatus('🔴 Disconnected. Attempting to reconnect...');
-                // Add a small delay before attempting to reconnect
-                setTimeout(() => {
-                    if (!reconnectInterval.current) {
-                        reconnectInterval.current = setInterval(connectWebSocket, 5000);
-                    }
-                }, 1000);
-            };
-
-            ws.current.onerror = (error) => {
-                console.warn('WebSocket encountered an error:', error);
-                // Don't set status here, let onclose handle it
-            };
-        };
-
-        connectWebSocket();
+    // Initial connection
+    useEffect(() => {
+        isComponentMounted.current = true;
+        
+        const initialDelay = setTimeout(() => {
+            if (isComponentMounted.current) {
+                connect();
+            }
+        }, 1000);
 
         return () => {
-            if (ws.current) {
-                const socket = ws.current;
-                // Remove all listeners before closing
-                socket.onclose = null;
-                socket.onerror = null;
-                socket.onmessage = null;
-                socket.onopen = null;
-                socket.close();
-            }
-            if (reconnectInterval.current) {
-                clearInterval(reconnectInterval.current);
-            }
+            isComponentMounted.current = false;
+            clearTimeout(initialDelay);
+            cleanup();
         };
-    }, [selectedSymbols]);
+    }, [connect, cleanup]);
+
+    // Handle chart data updates
+    useEffect(() => {
+        if (!isComponentMounted.current) return;
+        
+        if (latestData.current.length > 0) {
+            setChartData((prev) => {
+                const updatedData = { ...prev };
+                latestData.current.forEach((stock) => {
+                    if (selectedSymbols.includes(stock.symbol)) {
+                        const newEntry = {
+                            time: new Date(stock.time).toLocaleTimeString(),
+                            price: stock.price,
+                        };
+                        const existing = updatedData[stock.symbol] || [];
+                        updatedData[stock.symbol] = [...existing.slice(-49), newEntry];
+                    }
+                });
+                return updatedData;
+            });
+        }
+    }, [selectedSymbols, stocks]);
 
     useEffect(() => {
         if (selectedSymbols.length === 0 && stocks.length > 0) {
