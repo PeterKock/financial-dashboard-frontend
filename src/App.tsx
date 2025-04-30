@@ -146,12 +146,15 @@ function App() {
         if (!isComponentMounted.current) return;
         
         if (latestData.current.length > 0) {
+            // Use a single timestamp for all stocks in this batch
+            const batchTimestamp = new Date().toISOString();
+            
             setChartData((prev) => {
                 const updatedData = { ...prev };
                 latestData.current.forEach((stock) => {
                     if (selectedSymbols.includes(stock.symbol)) {
                         const newEntry = {
-                            time: new Date(stock.time).toLocaleTimeString(),
+                            time: batchTimestamp, // Use the same timestamp for all stocks in this batch
                             price: stock.price,
                         };
                         const existing = updatedData[stock.symbol] || [];

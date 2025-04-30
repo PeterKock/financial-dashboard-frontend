@@ -20,6 +20,25 @@ interface Props {
 
 const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+const formatTime = (time: string): string => {
+    try {
+        const date = new Date(time);
+        if (isNaN(date.getTime())) {
+            console.error('Invalid date:', time);
+            return 'Invalid Time';
+        }
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    } catch (error) {
+        console.error('Error formatting time:', error);
+        return 'Invalid Time';
+    }
+};
+
 export default function Chart({ data, symbols }: Props) {
     const hasData = symbols.some((symbol) => data[symbol]?.length > 0);
 
@@ -31,21 +50,28 @@ export default function Chart({ data, symbols }: Props) {
         );
     }
 
-    // Build normalized data array where each object has all prices keyed by symbol
-    const timeMap: Record<string, any> = {};
-
-    symbols.forEach((symbol) => {
-        (data[symbol] || []).forEach((point) => {
-            if (!timeMap[point.time]) {
-                timeMap[point.time] = { time: point.time };
-            }
-            timeMap[point.time][symbol] = point.price;
+    // Get all unique timestamps across all symbols
+    const allTimestamps = new Set<string>();
+    symbols.forEach(symbol => {
+        (data[symbol] || []).forEach(point => {
+            allTimestamps.add(point.time);
         });
     });
 
-    const normalizedData = Object.values(timeMap).sort((a, b) =>
-        a.time.localeCompare(b.time)
-    );
+    // Convert to array and sort
+    const sortedTimestamps = Array.from(allTimestamps).sort();
+
+    // Create normalized data points for each timestamp
+    const normalizedData = sortedTimestamps.map(timestamp => {
+        const dataPoint: Record<string, any> = { time: timestamp };
+        symbols.forEach(symbol => {
+            const point = (data[symbol] || []).find(p => p.time === timestamp);
+            if (point) {
+                dataPoint[symbol] = point.price;
+            }
+        });
+        return dataPoint;
+    });
 
     return (
         <div className="chart-wrapper">
@@ -54,11 +80,16 @@ export default function Chart({ data, symbols }: Props) {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={normalizedData}>
-                    <XAxis dataKey="time" tick={{ fill: '#ccc', fontSize: 12 }} />
+                    <XAxis 
+                        dataKey="time" 
+                        tick={{ fill: '#ccc', fontSize: 12 }} 
+                        tickFormatter={formatTime}
+                    />
                     <YAxis domain={['auto', 'auto']} tick={{ fill: '#ccc', fontSize: 12 }} />
                     <Tooltip
                         contentStyle={{ backgroundColor: '#111', borderColor: '#333' }}
                         labelStyle={{ color: '#ccc' }}
+                        labelFormatter={formatTime}
                     />
                     <Legend />
                     {symbols.map((symbol, index) => (
@@ -70,6 +101,7 @@ export default function Chart({ data, symbols }: Props) {
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={true}
+                            connectNulls={true}
                         />
                     ))}
                 </LineChart>
