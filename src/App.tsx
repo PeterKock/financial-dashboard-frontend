@@ -59,6 +59,17 @@ function App() {
             }
         };
 
+        const handleIncomingMessage = (event: MessageEvent) => {
+            try {
+                const incoming: Stocks = JSON.parse(event.data);
+                latestData.current = incoming;
+                setStocks(incoming);
+            } catch (err) {
+                console.error('Error processing message:', err);
+                setStatus('🟡 Error processing data');
+            }
+        };
+
         const connectWebSocket = () => {
             if (ws.current?.readyState === WebSocket.OPEN) {
                 return;
@@ -79,16 +90,7 @@ function App() {
                     }
                 };
 
-                ws.current.onmessage = (event) => {
-                    try {
-                        const incoming: Stocks = JSON.parse(event.data);
-                        latestData.current = incoming;
-                        setStocks(incoming);
-                    } catch (err) {
-                        console.error('Error parsing message:', err);
-                        setStatus('🟡 Error processing data');
-                    }
-                };
+                ws.current.onmessage = handleIncomingMessage;
 
                 ws.current.onclose = (event) => {
                     const wasClean = event.wasClean;
